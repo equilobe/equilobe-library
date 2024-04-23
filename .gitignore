@@ -1,0 +1,44 @@
+# Ignore the bin and obj folders
+bin/
+obj/
+.vs/
+
+# Ignore user-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ignore Visual Studio temporary files
+*.log
+*.tmp
+*.tmp_proj
+*.bak
+*.cache
+*.pidb
+*.suo
+*.user
+*.userosscache
+*.dllconfig
+*.exe.config
+*.pdb
+
+# Ignore VS Code directories
+.vscode/
+
+# Ignore Rider directories
+.idea/
+
+# Ignore Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Ignore folder config file
+Desktop.ini
+
+# Ignore Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Ignore ASP.NET Scaffolding
+ScaffoldingReadMe.txt
