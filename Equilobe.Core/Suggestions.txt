@@ -1,0 +1,2 @@
+﻿1. The separation between commands and queries is not needed, both are CRUD operations
+2. Enums should be in an Enum folder, not the Models folder
