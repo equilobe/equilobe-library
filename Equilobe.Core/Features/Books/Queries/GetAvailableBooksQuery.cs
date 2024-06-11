@@ -16,16 +16,16 @@ public class GetAvailableBooksQuery : IRequest<int>
 
 public class GetAvailableBooksQueryHandler : IRequestHandler<GetAvailableBooksQuery, int>
 {
-    private readonly ILibraryDbContext _dbContext;
+    private readonly ILibraryDbContext dbContext;
 
     public GetAvailableBooksQueryHandler(ILibraryDbContext dbContext)
     {
-        _dbContext = dbContext;
+        this.dbContext = dbContext;
     }
 
     public async Task<int> Handle(GetAvailableBooksQuery request, CancellationToken cancellationToken)
     {
-        var books = _dbContext.Books.Where(b => b.Metadata.ISBN == request.ISBN);
+        var books = this.dbContext.Books.Where(b => b.Metadata.ISBN == request.ISBN);
         if (!books.Any()) throw new KeyNotFoundException(nameof(BookMetadata));
 
         return await books.CountAsync(b => b.IsAvailable, cancellationToken);

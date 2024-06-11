@@ -1,6 +1,8 @@
 ﻿using Equilobe.Core.Shared.Models;
 using Equilobe.Core.Shared.SeedWork;
 using Equilobe.Core.DomainEvents;
+using Equilobe.Core.Features.Loans.Services;
+using Equilobe.Core.Features.Loans.Interfaces;
 
 namespace Equilobe.Core.Features.Loans;
 
@@ -32,17 +34,9 @@ public class Loan : Entity, IAggregateRoot
         AddDomainEvent(new BookReturnedEvent(BookId, qualityState, returnDate));
     }
 
-    public decimal CalculatePenalty(Money rentPrice, int differenceQualityState)
+    public decimal CalculatePenalty(Money rentPrice, int differenceQualityState, IPenaltyCalculator penaltyCalculator)
     {
-        decimal totalAmount = 0;
-        if (differenceQualityState > 2)
-        {
-            //If the user return the book with another state that he previous loaned, he will pay the damage
-            totalAmount = differenceQualityState * rentPrice.Amount * 0.2m; // 20% of rent price per difference quality state
-        }
-
-        var overdueDays = (DateTime.UtcNow - DueDate).Days;
-        if (overdueDays > 0) totalAmount += overdueDays * (rentPrice.Amount * 0.01m); // 1% of rent price per day
+        var totalAmount = penaltyCalculator.CalculatePenalty(rentPrice, DueDate, ReturnDate.Value, differenceQualityState);
         PaidAmount = new Money(totalAmount, rentPrice.Currency);
         return totalAmount;
     }
