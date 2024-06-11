@@ -3,6 +3,9 @@ using Equilobe.Core.Features.Books.Queries;
 using Equilobe.Core.Features.Loans.Commands;
 using Equilobe.Core.DomainEvents;
 using Microsoft.Extensions.DependencyInjection;
+using Equilobe.Core.Features.Loans.Handlers;
+using Equilobe.Core.Features.Loans.Interfaces;
+using Equilobe.Core.Features.Loans.Services;
 
 namespace Equilobe.Core;
 
@@ -17,10 +20,13 @@ public static class DependencyInjection
         services.AddTransient<AddBookCommandHandler>();
         services.AddTransient<DeleteBookCommandHandler>();
         services.AddTransient<GetAvailableBooksQueryHandler>();
+        services.AddTransient<GetLoansQueryHandler>();
         services.AddTransient<LoanBookCommandHandler>();
         services.AddTransient<ReturnBookCommandHandler>();
 
         services.AddTransient<BookLoanedEventHandler>();
         services.AddTransient<BookReturnedEventHandler>();
+
+        services.AddScoped<IPenaltyCalculator, PenaltyCalculator>();
     }
 }

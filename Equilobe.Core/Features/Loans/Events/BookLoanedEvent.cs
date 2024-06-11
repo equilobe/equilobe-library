@@ -17,20 +17,20 @@ public class BookLoanedEvent : INotification
 
 public class BookLoanedEventHandler : INotificationHandler<BookLoanedEvent>
 {
-    private readonly ILibraryDbContext _dbContext;
+    private readonly ILibraryDbContext dbContext;
 
     public BookLoanedEventHandler(ILibraryDbContext dbContext)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
     public async Task Handle(BookLoanedEvent notification, CancellationToken cancellationToken)
     {
-        var book = await _dbContext.Books
+         var book = await this.dbContext.Books
             .FirstOrDefaultAsync(b => b.Id == notification.bookId, cancellationToken)
             ?? throw new KeyNotFoundException(nameof(BookMetadata));
 
         book.LoanBook();
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await this.dbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -4,6 +4,7 @@ using Equilobe.Core.Shared.Models;
 using Equilobe.Core.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Equilobe.Core.Features.Loans.Interfaces;
 
 namespace Equilobe.Core.DomainEvents;
 
@@ -22,28 +23,30 @@ public class BookReturnedEvent : INotification
 
 public class BookReturnedEventHandler : INotificationHandler<BookReturnedEvent>
 {
-    private readonly ILibraryDbContext _dbContext;
+    private readonly ILibraryDbContext dbContext;
+    private IPenaltyCalculator penaltyCalculator;
 
-    public BookReturnedEventHandler(ILibraryDbContext dbContext)
+    public BookReturnedEventHandler(ILibraryDbContext dbContext, IPenaltyCalculator penaltyCalculator)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        this.penaltyCalculator = penaltyCalculator;
     }
 
     public async Task Handle(BookReturnedEvent notification, CancellationToken cancellationToken)
     {
-        var bookTask = _dbContext.Books
+        var bookTask = this.dbContext.Books
             .FirstOrDefaultAsync(b => b.Id == notification.BookId, cancellationToken);
-        var loanTask = _dbContext.Loans
+        var loanTask = this.dbContext.Loans
             .FirstOrDefaultAsync(b => b.BookId == notification.BookId, cancellationToken);        
         var book = await bookTask ?? throw new KeyNotFoundException(nameof(BookMetadata));
         var loan = await loanTask ?? throw new KeyNotFoundException(nameof(Loan));
 
         var differenceQualityState = notification.QualityState - book.QualityState;
 
-        loan.CalculatePenalty(book.RentPrice, differenceQualityState);
+        loan.CalculatePenalty(book.RentPrice, differenceQualityState, penaltyCalculator);
 
         book.ReturnBook(notification.QualityState);
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await this.dbContext.SaveChangesAsync(cancellationToken);
     }
 }

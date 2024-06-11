@@ -21,23 +21,23 @@ public class AddBookCommand : IRequest
 
 public class AddBookCommandHandler : IRequestHandler<AddBookCommand>
 {
-    private readonly ILibraryDbContext _dbContext;
+    private readonly ILibraryDbContext dbContext;
 
     public AddBookCommandHandler(ILibraryDbContext dbContext)
     {
-        _dbContext = dbContext;
+        this.dbContext = dbContext;
     }
 
     public async Task Handle(AddBookCommand request, CancellationToken cancellationToken)
     {
         var rentPrice = new Money(request.RentPrice, request.RentCurrency);
-        var author = await _dbContext.Authors
+        var author = await this.dbContext.Authors
             .FirstOrDefaultAsync(a => a.FirstName == request.AuthorFirstName && a.LastName == request.AuthorLastName, cancellationToken)
             ?? new Author(request.AuthorFirstName, request.AuthorLastName, request.AuthorMiddleName);
         var bookMetadata = new BookMetadata(request.Title, author, request.ISBN);
         var book = new Book(rentPrice, bookMetadata);
 
-        await _dbContext.Books.AddAsync(book, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await this.dbContext.Books.AddAsync(book, cancellationToken);
+        await this.dbContext.SaveChangesAsync(cancellationToken);
     }
 }

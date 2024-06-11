@@ -7,11 +7,11 @@ namespace Equilobe.Infrastructure.Data.Interceptors;
 
 public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator mediator;
 
     public DispatchDomainEventsInterceptor(IMediator mediator)
     {
-        _mediator = mediator;
+        this.mediator = mediator;
     }
 
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
@@ -44,6 +44,6 @@ public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
         entities.ToList().ForEach(e => e.ClearDomainEvents());
 
         foreach (var domainEvent in domainEvents)
-            await _mediator.Publish(domainEvent);
+            await this.mediator.Publish(domainEvent);
     }
 }

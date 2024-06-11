@@ -12,18 +12,18 @@ public class DeleteBookCommand : IRequest<BookDTO>
 
 public class DeleteBookCommandHandler : IRequestHandler<DeleteBookCommand, BookDTO>
 {
-    private readonly ILibraryDbContext _dbContext;
+    private readonly ILibraryDbContext dbContext;
 
     public DeleteBookCommandHandler(ILibraryDbContext dbContext)
     {
-        _dbContext = dbContext;
+        this.dbContext = dbContext;
     }
 
     public async Task<BookDTO> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
     {
-        var book = await _dbContext.Books.FirstOrDefaultAsync(b => b.Id == request.BookId, cancellationToken)
+        var book = await this.dbContext.Books.FirstOrDefaultAsync(b => b.Id == request.BookId, cancellationToken)
             ?? throw new KeyNotFoundException(nameof(Book));
-        _dbContext.Books.Remove(book);
+        this.dbContext.Books.Remove(book);
         return new BookDTO(book);
     }
 }

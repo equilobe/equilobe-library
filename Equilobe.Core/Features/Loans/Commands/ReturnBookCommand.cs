@@ -17,21 +17,21 @@ public class ReturnBookCommand : IRequest
 
 public class ReturnBookCommandHandler : IRequestHandler<ReturnBookCommand>
 {
-    private readonly ILibraryDbContext _dbContext;
+    private readonly ILibraryDbContext dbContext;
 
     public ReturnBookCommandHandler(ILibraryDbContext dbContext)
     {
-        _dbContext = dbContext;
+        this.dbContext = dbContext;
     }
 
     public async Task Handle(ReturnBookCommand request, CancellationToken cancellationToken)
     {
-        var loan = await _dbContext.Loans
+        var loan = await this.dbContext.Loans
             .FirstOrDefaultAsync(l => l.BookId == request.BookId, cancellationToken)
             ?? throw new KeyNotFoundException(nameof(Loan));
 
         loan.ReturnBook(request.BookQuality, request.ReturnDate ?? DateTime.UtcNow);
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await this.dbContext.SaveChangesAsync(cancellationToken);
     }
 }

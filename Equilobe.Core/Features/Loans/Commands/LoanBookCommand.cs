@@ -14,19 +14,19 @@ public class LoanBookCommand : IRequest
 
 public class LoanBookCommandHandler : IRequestHandler<LoanBookCommand>
 {
-    private readonly ILibraryDbContext _dbContext;
+    private readonly ILibraryDbContext dbContext;
 
     public LoanBookCommandHandler(ILibraryDbContext dbContext)
     {
-        _dbContext = dbContext;
+        this.dbContext = dbContext;
     }
 
     public async Task Handle(LoanBookCommand request, CancellationToken cancellationToken)
     {
-        var user = await _dbContext.Users
+        var user = await this.dbContext.Users
             .FirstOrDefaultAsync(u => u.Username == request.Username, cancellationToken)
             ?? throw new KeyNotFoundException(nameof(User));
-        var books = _dbContext.Books.Where(b => b.Metadata.ISBN == request.ISBN);
+        var books = this.dbContext.Books.Where(b => b.Metadata.ISBN == request.ISBN);
 
         // We take by default the best book to rent,
         var bestQualityBookItem = await books
@@ -35,7 +35,7 @@ public class LoanBookCommandHandler : IRequestHandler<LoanBookCommand>
                           .FirstOrDefaultAsync(cancellationToken) ?? throw new ArgumentException("No available book found.");
         var loan = new Loan(bestQualityBookItem.Id, user.Id, request.LoanDate ?? DateTime.UtcNow);
 
-        await _dbContext.Loans.AddAsync(loan, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await this.dbContext.Loans.AddAsync(loan, cancellationToken);
+        await this.dbContext.SaveChangesAsync(cancellationToken);
     }
 }
